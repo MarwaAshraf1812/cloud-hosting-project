@@ -1,6 +1,3 @@
-import Image from 'next/image'
-import CloudImage from '../../../public/cloud-hosting.png'
-
 function page() {
   return (
     <div className="bg-gray-100 py-16">
