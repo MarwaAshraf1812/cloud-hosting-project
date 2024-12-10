@@ -3,13 +3,11 @@ import Link from "next/link";
 import React from "react";
 
 interface SinglePageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>; 
 }
 
 const SingleArticlePage = async ({ params }: SinglePageProps) => {
-  const { id } = params;
+  const { id } = await params;
 
   // Fetch article data
   const response = await fetch(
