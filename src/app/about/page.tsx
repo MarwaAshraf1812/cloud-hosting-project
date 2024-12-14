@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function page() {
   return (
     /* eslint-disable react/no-unescaped-entities */
@@ -45,7 +47,7 @@ function page() {
             better, faster, and more secure web!
           </p>
           <button className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition">
-            Get Started
+            <Link href="/register">Get Started</Link>
           </button>
         </div>
       </div>

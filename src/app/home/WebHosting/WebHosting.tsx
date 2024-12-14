@@ -45,24 +45,23 @@ function HostingPlans() {
   ];
 
   return (
-    <div className="container mx-auto px-6 py-7 mb-20">
-  <h1 className="text-3xl font-semibold text-gray-800 mb-10 text-center">
-    Web Hosting Plans
-  </h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:ms-0 ms-9">
-    {plans.map((plan, index) => (
-      <WebHostingPlan
-        key={index}
-        title={plan.title}
-        price={plan.price}
-        discount={plan.discount}
-        features={plan.features}
-        buttonText={plan.buttonText}
-      />
-    ))}
-  </div>
-</div>
-
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6 py-7">
+      <h1 className="text-3xl font-semibold text-gray-800 mb-10 text-center">
+        Web Hosting Plans
+      </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {plans.map((plan, index) => (
+          <WebHostingPlan
+            key={index}
+            title={plan.title}
+            price={plan.price}
+            discount={plan.discount}
+            features={plan.features}
+            buttonText={plan.buttonText}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
