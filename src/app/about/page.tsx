@@ -1,5 +1,12 @@
 import Link from "next/link";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Learn more about Web Hoisting and our commitment to innovation and reliability",
+};
+
 function page() {
   return (
     /* eslint-disable react/no-unescaped-entities */

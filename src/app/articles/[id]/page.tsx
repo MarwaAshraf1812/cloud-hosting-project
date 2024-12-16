@@ -1,6 +1,14 @@
 import { Article } from "@/utils/types";
 import Link from "next/link";
 import React from "react";
+import { Metadata } from "next";
+import AddCommentForm from "@/components/comments/AddCommentForm";
+import CommentItem from "@/components/comments/CommentItem";
+
+export const metadata: Metadata = {
+  title: "Article Details",
+  description: "View details of a specific article",
+};
 
 interface SinglePageProps {
   params: Promise<{ id: string }>; 
@@ -9,7 +17,6 @@ interface SinglePageProps {
 const SingleArticlePage = async ({ params }: SinglePageProps) => {
   const { id } = await params;
 
-  // Fetch article data
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/posts/${id}`
   );
@@ -20,7 +27,7 @@ const SingleArticlePage = async ({ params }: SinglePageProps) => {
 
   return (
     <section className="container p-5 m-auto w-full px-5 pt-8 md:w-3/4 fixed_height">
-      <div className="shadow-lg p-5">
+      <div className="shadow-lg p-5 mb-5">
         <h1 className="text-2xl font-bold text-blue-400">{article.title}</h1>
         <div>
           <div>
@@ -41,6 +48,15 @@ const SingleArticlePage = async ({ params }: SinglePageProps) => {
             Go to Articles
           </Link>
         </div>
+      </div>
+      <AddCommentForm />
+      <div className="mt-5">
+        <h2 className="text-2xl font-bold text-blue-400">Comments</h2>
+        <ul className="mt-5">
+          <CommentItem />
+          <CommentItem />
+          <CommentItem />
+        </ul>
       </div>
     </section>
   );

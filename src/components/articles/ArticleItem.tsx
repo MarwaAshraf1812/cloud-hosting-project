@@ -10,8 +10,8 @@ function ArticleItem({ article }: ArticleItemProps) {
   return (
     <article
       key={article.id}
-      className="w-1/3 md:2/5 sm:1/4 mb-5  my-1 border border-gray-200 p-6 hover:bg-gray-200 cursor-pointer shadow-lg"
-    >
+      className="p-6 border border-gray-200 rounded-lg hover:bg-gray-200 cursor-pointer shadow-lg"
+      >
       <h2 className="font-bold line-clamp-1 text-blue-400">{article.title}</h2>
       <p>{article.body}</p>
       <Link
