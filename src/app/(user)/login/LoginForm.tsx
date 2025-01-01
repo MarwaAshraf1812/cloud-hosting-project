@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import {toast } from 'react-toastify';
+import { useRouter } from "next/router";
 
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,6 +15,7 @@ function LoginForm() {
       return toast.error('Please fill in all fields ');
     }
     console.log(email, password);
+    router.replace("/dashboard");
   };
 
   return (
