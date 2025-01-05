@@ -1,45 +1,64 @@
-import { Article } from '@/utils/types';
 import { NextRequest, NextResponse } from "next/server";
-import { articles } from "@/utils/data";
-import { ArticleSchema } from '@/utils/validationSchemas';
-import { CreateArticle } from '@/utils/dtos';
+import { ArticleSchema } from "@/utils/validationSchemas";
+import { CreateArticle } from "@/utils/dtos";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 /**
  * @method GET
  * @endpoint ~/api/articles
  * @description Get all articles
- * @param request 
+ * @param request
  * @access public
- * @returns 
+ * @returns
  */
-export function GET(request: NextRequest ) {
-  console.log(request);
-  return NextResponse.json(articles, {status: 200});
+export async function GET() {
+  try {
+    const articles = await prisma.article.findMany();
+    return NextResponse.json(articles, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "An error occurred", error },
+      { status: 500 }
+    );
+  }
 }
-
 
 /**
  * @method POST
  * @endpoint ~/api/articles
  * @description Create an article
- * @param request 
- * @access private
- * @returns 
+ * @param request
+ * @access public
+ * @returns
  */
-export async function POST(request: NextRequest ) {
-  const body = (await request.json()) as CreateArticle;
+export async function POST(request: NextRequest) {
+  try {
+    const body = (await request.json()) as CreateArticle;
 
-  const validation = ArticleSchema.safeParse(body);
-  if (!validation.success) {
-    return NextResponse.json({message: validation.error.errors[0].message}, {status: 400});
+    const validation = ArticleSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { message: validation.error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
+    const newArticle = await prisma.article.create({
+      data: {
+        title: body.title,
+        description: body.description,
+      },
+    });
+    return NextResponse.json(
+      { message: "Article created successfully", article: newArticle },
+      { status: 201 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "An error occurred", error },
+      { status: 500 }
+    );
   }
-
-  const newArticle:Article = {
-    id: articles.length + 1,
-    userId: 200,
-    title: body.title,
-    body: body.body
-  };
-  articles.push(newArticle);
-  return NextResponse.json({message: "Article created successfully", article: newArticle}, {status: 201});
 }

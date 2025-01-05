@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { articles } from "@/utils/data";
 import { UpdateArticle } from "@/utils/dtos";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 interface Props {
   params: {id: string}
@@ -15,12 +18,17 @@ interface Props {
  * @returns 
  */
 export async function GET(request: NextRequest , {params}: Props) {
-  const article = articles.find(article => article.id === parseInt(params.id));
-  if (!article) {
-    return NextResponse.json({message: "Article not found"}, {status: 404});
+  try {
+    const article = await prisma.article.findUnique({where: {id: parseInt(params.id)}});
+    if (!article) {
+      return NextResponse.json({message: "Article not found"}, {status: 404});
+    }
+    return NextResponse.json(article, {status: 200});
+  } catch (error) {
+    return NextResponse.json({message: "An error occurred", error}, {status: 500});
   }
-  return NextResponse.json(article, {status: 200});
 }
+
 
 /**
  * @method PUT

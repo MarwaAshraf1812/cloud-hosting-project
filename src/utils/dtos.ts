@@ -1,11 +1,11 @@
 export interface CreateArticle
 {
   title: string;
-  body: string;
+  description: string;
 }
 
 export interface UpdateArticle
 {
   title?: string;
-  body?: string;
+  description?: string;
 }
