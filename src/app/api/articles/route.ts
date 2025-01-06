@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ArticleSchema } from "@/utils/validationSchemas";
 import { CreateArticle } from "@/utils/dtos";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma  from "@/utils/db";
 
 /**
  * @method GET

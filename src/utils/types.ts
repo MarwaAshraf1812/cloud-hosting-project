@@ -3,3 +3,9 @@ export type Article = {
   title: string;
   description: string;
 };
+
+export interface JWTPayload {
+  id: number;
+  isAdmin: boolean;
+  username: string;
+}
