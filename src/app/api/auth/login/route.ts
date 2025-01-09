@@ -3,8 +3,7 @@ import { LoginUser } from "@/utils/dtos";
 import { LoginUserSchema } from "@/utils/validationSchemas";
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import { generateToken } from "@/utils/generateToken";
-import { JWTPayload } from "@/utils/types";
+import { setCookie } from "@/utils/generateToken";
 
 /**
  * @method POST
@@ -14,7 +13,7 @@ import { JWTPayload } from "@/utils/types";
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as LoginUser;
+    const body = (await request.json()) as LoginUser;
     const validation = LoginUserSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: {email: body.email}
+      where: { email: body.email },
     });
     if (!user) {
       return NextResponse.json(
@@ -40,18 +39,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    const JWTPayload: JWTPayload = {
-        id: user.id,
-        username: user.username,
-        isAdmin: user.isAdmin
-      }
-    const token = generateToken(JWTPayload);
+    const cookie = setCookie({
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    });
 
     return NextResponse.json(
-      { message: "Authenticated", token },
-      { status: 200 }
-    )
+      { message: "Authenticated" },
+      { status: 200, headers: { "set-cookie": cookie } }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "An error occurred", error },

@@ -1,7 +1,6 @@
 import prisma from "@/utils/db";
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
-import { JWTPayload } from "@/utils/types";
+import { verifyToken } from "@/utils/verifyToken";
 
 interface Props {
   params: {
@@ -29,16 +28,8 @@ export async function DELETE (request: NextRequest, {params} : Props){
       );
     }
 
-    const token = request.headers.get('token') as string;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JWTPayload;
-    if (!decoded) {
-      return NextResponse.json(
-        { message: "No token provided, access denied" },
-        { status: 401 } // Unauthorized
-      );
-    }
-
-    if (decoded.id === user.id) {
+    const decoded = verifyToken(request);
+    if (decoded !== null  && decoded.id === user.id) {
       await prisma.user.delete({
         where: { id: user.id }
       })
@@ -54,5 +45,91 @@ export async function DELETE (request: NextRequest, {params} : Props){
       { message: error },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * @method GET
+ * @endpoint /api/auth/profile/:id
+ * @description  Get a Profile by ID
+ * @access Private
+ */
+
+export async function GET(request: NextRequest, {params} : Props){
+  try {
+    const user = await prisma.user.findUnique({
+      where: {id: parseInt(params.id)},
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+      });
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const decoded = verifyToken(request);
+    if (decoded === null || decoded.id !== user.id) {
+      return NextResponse.json({ message: "Only user can view his profile" }, { status: 401 });
+    }
+    return NextResponse.json(
+      user ,
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: error },
+      { status: 500 }
+      );
+  }
+}
+
+/**
+ * @method PUT
+ * @endpoint /api/auth/profile/:id
+ * @description  Update a Profile by ID
+ * @access Private
+ */
+
+export async function PUT(request: NextRequest, {params} : Props){
+  try {
+    const user = await prisma.user.findUnique({
+      where: {id: parseInt(params.id)},
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const decoded = verifyToken(request);
+    if (decoded === null || decoded.id !== user.id) {
+      return NextResponse.json({ message: "Only user can update his profile" }, { status: 403 });
+    }
+
+    const body = await request.json();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        username: body.username,
+        email: body.email,
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error },
+      { status: 500 }
+    );
+    
   }
 }
