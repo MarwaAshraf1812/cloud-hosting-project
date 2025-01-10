@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UpdateArticle } from "@/utils/dtos";
 import prisma from "@/utils/db";
+import { verifyToken } from "@/utils/verifyToken";
 
 interface Props {
   params: { id: string };
@@ -10,7 +11,7 @@ interface Props {
  * @method GET
  * @endpoint ~/api/articles/:id
  * @description Get single article by id
- * @param request
+ * @param request, { params }
  * @access public
  * @returns
  */
@@ -38,12 +39,19 @@ export async function GET(request: NextRequest, { params }: Props) {
  * @method PUT
  * @endpoint ~/api/articles/:id
  * @description Update single article by id
- * @param request
- * @access public
+ * @param request, { params }
+ * @access private
  * @returns
  */
 export async function PUT(request: NextRequest, { params }: Props) {
   try {
+    const user = verifyToken(request);
+    if (user == null || !user.isAdmin) {
+      return NextResponse.json(
+        { message: "Only admins can update articles" },
+        { status: 401 }
+      );
+    }
     const article = await prisma.article.findUnique({
       where: { id: parseInt(params.id) },
     });
@@ -75,12 +83,19 @@ export async function PUT(request: NextRequest, { params }: Props) {
  * @method DELETE
  * @endpoint ~/api/articles/:id
  * @description delete single article by id
- * @param request
- * @access public
+ * @param request, { params }
+ * @access private
  * @returns
  */
 export async function DELETE(request: NextRequest, { params }: Props) {
   try {
+    const user = verifyToken(request);
+    if (user == null || !user.isAdmin) {
+      return NextResponse.json(
+        { message: "Only admins can delete articles" },
+        { status: 401 }
+      );
+    }
     const article = await prisma.article.findUnique({
       where: { id: parseInt(params.id) },
     });

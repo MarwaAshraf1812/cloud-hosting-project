@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import prisma from "@/utils/db";
 import { NextResponse, NextRequest } from "next/server";
 import { verifyToken } from "@/utils/verifyToken";
@@ -102,6 +103,14 @@ export async function PUT(request: NextRequest, {params} : Props){
   try {
     const user = await prisma.user.findUnique({
       where: {id: parseInt(params.id)},
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      }
     })
 
     if (!user) {
@@ -118,13 +127,26 @@ export async function PUT(request: NextRequest, {params} : Props){
 
     const body = await request.json();
 
+    if (body.password) {
+      if (body.password.length < 6) {
+        return NextResponse.json(
+          { message: "Password must be at least 6 characters" },
+          { status: 400 }
+        );
+      }
+      const salt = await bcrypt.genSalt(10);
+      body.password = await bcrypt.hash(body.password, salt);
+    }
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
         username: body.username,
         email: body.email,
+        password: body.password,
       },
     });
+    return NextResponse.json(user , { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: error },

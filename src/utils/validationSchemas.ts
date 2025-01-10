@@ -51,3 +51,19 @@ export const LoginUserSchema = z.object({
       required_error: "Password is required",
     })
 })
+
+export const CreateCommentSchema = z.object({
+  content: z
+    .string({
+      required_error: "Text is required",
+      invalid_type_error: "Text must be a string",
+    })
+    .min(3, "Text must be at least 3 characters long")
+    .max(1000, "Text must be at most 1000 characters long"),
+  articleId: z
+    .number({
+      required_error: "Article ID is required",
+      invalid_type_error: "Article ID must be a number",
+    })
+    .int(),
+})
