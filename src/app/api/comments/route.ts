@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "Comment created successfully", comment },
+      comment,
       { status: 201 }
     );
   } catch (error) {

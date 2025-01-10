@@ -52,6 +52,32 @@ export const LoginUserSchema = z.object({
     })
 })
 
+export const UpdateUserSchema = z.object({
+  username: z
+    .string({
+      required_error: "Username is required",
+      invalid_type_error: "Username must be a string",
+    })
+    .min(3, "Username must be at least 3 characters long")
+    .max(100, "Username must be at most 20 characters long")
+    .optional(),
+  email: z
+    .string({
+      required_error: "Email is required",
+      invalid_type_error: "Email must be a string",
+    })
+    .max(200, "Email must be at most 100 characters long")
+    .email("Email is invalid")
+    .optional(),
+  password: z
+    .string({
+      required_error: "Password is required",
+      invalid_type_error: "Password must be a string",
+    })
+    .min(6, "Password must be at least 6 characters long")
+    .optional(),
+})
+
 export const CreateCommentSchema = z.object({
   content: z
     .string({

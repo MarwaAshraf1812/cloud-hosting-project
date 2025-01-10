@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import prisma from "@/utils/db";
 import { NextResponse, NextRequest } from "next/server";
 import { verifyToken } from "@/utils/verifyToken";
+import { UpdateUserSchema } from "@/utils/validationSchemas";
+import { UpdateUser } from '@/utils/dtos';
 
 interface Props {
   params: {
@@ -20,6 +22,9 @@ export async function DELETE (request: NextRequest, {params} : Props){
   try {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(params.id) },
+      include: {
+        comments: true,
+      }
     })
 
     if (!user) {
@@ -34,7 +39,16 @@ export async function DELETE (request: NextRequest, {params} : Props){
       await prisma.user.delete({
         where: { id: user.id }
       })
-  
+
+      const commentIds: number[] = user?.comments.map((comment) => comment.id);
+      await prisma.comment.deleteMany({
+        where: {
+          id: {
+            in: commentIds,
+          },
+        },
+      });
+
       return NextResponse.json(
         { message: "Your account has been deleted" },
         { status: 403 }
@@ -125,7 +139,14 @@ export async function PUT(request: NextRequest, {params} : Props){
       return NextResponse.json({ message: "Only user can update his profile" }, { status: 403 });
     }
 
-    const body = await request.json();
+    const body = await request.json() as UpdateUser;
+    const validation = UpdateUserSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { message: validation.error.errors[0].message },
+        { status: 400 }
+      );
+    }
 
     if (body.password) {
       if (body.password.length < 6) {

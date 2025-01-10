@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
       take: ARTICLE_PER_PAGE,
       skip: (parseInt(pageNumber) - 1) * ARTICLE_PER_PAGE,
     });
-    return NextResponse.json(articles, { status: 200 });
+    const totalArticles = await prisma.article.count();
+
+    return NextResponse.json({articles, totalArticles}, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "An error occurred", error },
@@ -66,7 +68,7 @@ export async function POST(request: NextRequest) {
       },
     });
     return NextResponse.json(
-      { message: "Article created successfully", article: newArticle },
+      newArticle,
       { status: 201 }
     );
   } catch (error) {

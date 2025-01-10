@@ -19,6 +19,18 @@ export async function GET(request: NextRequest, { params }: Props) {
   try {
     const article = await prisma.article.findUnique({
       where: { id: parseInt(params.id) },
+      include: {
+        comments: {
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
     if (!article) {
       return NextResponse.json(
@@ -98,6 +110,7 @@ export async function DELETE(request: NextRequest, { params }: Props) {
     }
     const article = await prisma.article.findUnique({
       where: { id: parseInt(params.id) },
+      include: {comments: true}
     });
     if (!article) {
       return NextResponse.json(
@@ -107,6 +120,15 @@ export async function DELETE(request: NextRequest, { params }: Props) {
     }
     await prisma.article.delete({
       where: { id: parseInt(params.id) },
+    });
+
+    const commentIds: number[] = article?.comments.map((comment) => comment.id);
+    await prisma.comment.deleteMany({
+      where: {
+        id: {
+          in: commentIds,
+        },
+      },
     });
     return NextResponse.json({ message: "Article deleted" }, { status: 200 });
   } catch (error) {
